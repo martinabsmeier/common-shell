@@ -47,7 +47,7 @@
 
         <!-- test dependency versions -->
         <junit.version>5.9.1</junit.version>
-        <mockito.version>4.8.1</mockito.version>
+        <mockito.version>4.9.0</mockito.version>
         <awaitility.version>4.2.0</awaitility.version>
 
         <!-- plugin versions -->
