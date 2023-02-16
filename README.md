@@ -5,51 +5,40 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 # Shell library
+Java library that makes it easier to create and run your own shell commands.
+
+## Advantages
 * Zero dependencies only JRE is required.
 * Provides annotations to create a interactive command-line user interfaces.
 * Create commands and call a specific method for execution
 * No need to parse arguments
 
 ## Dependencies
-The *shell* library has zero dependencies at runtime.
+The *shell* library has zero dependencies.
 
 ## Getting Started
-There are three options to use the shell library.
-1. Download the source code from GitHub and build the project yourself
-2Download the finished artifact from maven central
+### Requirements
+- Installed java SDK minimum is version 11 see [Adoptium](https://adoptium.net/de/).
+- Installed maven build tool see [maven](https://maven.apache.org)
+- Clone the repository from GitHub.
 
-### First option
-- Install a JDK found at [Adoptium](https://adoptium.net/de/).
-- Install the maven build tool found at [maven](https://maven.apache.org)
-- Clone the repository from GitHub found at [shell library](https://github.com/martinabsmeier/common-shell).
-
-#### Clone repository
-```
+### Clone the common-shell repository
+```shell
 git clone git@github.com:martinabsmeier/common-shell.git
 ```
 
-#### Building library
-```
+### Build the common-shell library
+```shell
 mvn clean install
 ```
 
-#### Running Tests
-```
+### Run the common-shell JUnit Tests
+```shell
 mvn test
 ```
 
-### Second option
-If you use maven as build system add the following dependency to your pom.xml file.
-```xml
-<dependency>
-    <groupId>de.am.common</groupId>
-    <artifactId>shell</artifactId>
-    <version>1.0.1</version>
-</dependency>
-```
-
-### User guide
-Instructions for using your project. Ways to run the program, how to include it in another project, etc.
+## User guide
+Add some examples
 
 ## Releases
 * For available releases, see the [repository release list](https://github.com/martinabsmeier/common-shell/releases).

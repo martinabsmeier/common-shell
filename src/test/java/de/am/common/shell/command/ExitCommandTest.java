@@ -24,6 +24,7 @@ import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.Serial;
 import java.security.Permission;
 
 import static de.am.common.shell.ShellConstants.SUCCESSFUL;
@@ -102,6 +103,7 @@ class ExitCommandTest {
     }
 
     private static class ExitException extends SecurityException {
+        private static final long serialVersionUID = 3830534030825485468L;
         @Getter
         final int status;
 
