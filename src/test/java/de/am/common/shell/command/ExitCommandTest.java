@@ -24,7 +24,6 @@ import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.Serial;
 import java.security.Permission;
 
 import static de.am.common.shell.ShellConstants.SUCCESSFUL;

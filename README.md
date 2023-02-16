@@ -19,7 +19,7 @@ The *shell* library has zero dependencies.
 ## Getting Started
 ### Requirements
 - Installed java SDK minimum is version 11 see [Adoptium](https://adoptium.net/de/).
-- Installed maven build tool see [maven](https://maven.apache.org)
+- Installed maven build tool see [Maven](https://maven.apache.org)
 - Clone the repository from GitHub.
 
 ### Clone the common-shell repository
@@ -48,8 +48,8 @@ Add some examples
 This project uses [Semantic Versioning](http://semver.org/).
 
 ## Contributing
-Provide details about how people can contribute to your project. If you have a contributing guide, mention it here. e.g.:
-We encourage public contributions! Please review [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct and development process.
+Everyone is invited to further develop the project, be it with ideas for new use cases or with source code.
+Please review [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct and development process.
 
 ## License
 This project is licensed under the Apache License - see [LICENSE](LICENSE) file for details.
