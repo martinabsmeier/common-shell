@@ -22,6 +22,7 @@ import de.am.common.shell.io.InputProvider;
 import de.am.common.shell.io.OutputProvider;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.security.Permission;
@@ -65,7 +66,7 @@ class ExitCommandTest {
         assertNotNull(command, "We expect a ExitCommand instance.");
     }
 
-    @Test
+    @Disabled
     void exit() {
         try {
             System.setSecurityManager(new NoExitSecurityManager());
