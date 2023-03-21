@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
 import static de.am.common.shell.ShellConstants.ANSI_YELLOW_BRIGHT;
+import static de.am.common.shell.ShellConstants.SUCCESSFUL;
 import static java.util.Objects.nonNull;
 
 /**
@@ -114,6 +115,15 @@ public class Shell {
      */
     public void disableLogging() {
         outputProvider.disableLogging();
+    }
+
+    /**
+     * Shutdown the shell. Execute {@code System.exit}
+     */
+    public void shutdown() {
+        if (isShutdown) {
+            System.exit(SUCCESSFUL);
+        }
     }
 
     // #################################################################################################################

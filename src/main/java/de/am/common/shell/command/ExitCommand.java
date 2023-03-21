@@ -50,6 +50,6 @@ public class ExitCommand implements ShellInject {
         out.println("{0}", ANSI_WHITE_BRIGHT, "Shutdown shell...");
         out.exit();
 
-        System.exit(SUCCESSFUL);
+        shell.shutdown();
     }
 }

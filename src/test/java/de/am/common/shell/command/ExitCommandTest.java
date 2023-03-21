@@ -16,25 +16,20 @@
 package de.am.common.shell.command;
 
 import de.am.common.shell.Shell;
-import de.am.common.shell.ShellConfig;
-import de.am.common.shell.ShellFactory;
 import de.am.common.shell.io.InputProvider;
 import de.am.common.shell.io.OutputProvider;
-import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.security.Permission;
-
-import static de.am.common.shell.ShellConstants.SUCCESSFUL;
-import static java.util.Objects.nonNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * JUnit test cases of {@link ExitCommand} class:
@@ -43,7 +38,6 @@ import static org.mockito.Mockito.verify;
  */
 class ExitCommandTest {
 
-    SecurityManager originalSecurityManager;
     private ExitCommand command;
     InputProvider inputProvider;
     OutputProvider outputProvider;
@@ -51,12 +45,11 @@ class ExitCommandTest {
 
     @BeforeEach
     void setUp() {
-        originalSecurityManager = System.getSecurityManager();
-        command = new ExitCommand();
         inputProvider = mock(InputProvider.class);
         outputProvider = mock(OutputProvider.class);
+        shell = mock(Shell.class);
 
-        shell = ShellFactory.createShell(ShellConfig.builder().inputProvider(inputProvider).outputProvider(outputProvider).build());
+        command = new ExitCommand();
         command.setShell(shell);
     }
 
@@ -66,49 +59,17 @@ class ExitCommandTest {
         assertNotNull(command, "We expect a ExitCommand instance.");
     }
 
-    @Disabled
+    @Test
     void exit() {
-        try {
-            System.setSecurityManager(new NoExitSecurityManager());
-            command.exit();
-        } catch (ExitException ex) {
-            assertTrue(shell.isShutdown());
-            verify(inputProvider, times(1)).exit();
-            verify(outputProvider, times(1)).exit();
-            assertEquals(SUCCESSFUL, ex.getStatus(), "Wrong System.exit() status.");
-        } finally {
-            System.setSecurityManager(originalSecurityManager);
-        }
-    }
+        doCallRealMethod().when(shell).setShutdown(anyBoolean());
+        when(shell.isShutdown()).thenCallRealMethod();
+        when(shell.getInputProvider()).thenReturn(inputProvider);
+        when(shell.getOutputProvider()).thenReturn(outputProvider);
+        doNothing().when(shell).shutdown();
 
-    // #################################################################################################################
-    private class NoExitSecurityManager extends SecurityManager {
-
-        public void checkPermission(final Permission perm) {
-            if (nonNull(originalSecurityManager))
-                originalSecurityManager.checkPermission(perm);
-        }
-
-        @Override
-        public void checkPermission(final Permission perm, final Object context) {
-            if (nonNull(originalSecurityManager))
-                originalSecurityManager.checkPermission(perm, context);
-        }
-
-        @Override
-        public void checkExit(final int status) {
-            super.checkExit(status);
-            throw new ExitException(status);
-        }
-    }
-
-    private static class ExitException extends SecurityException {
-        private static final long serialVersionUID = 3830534030825485468L;
-        @Getter
-        final int status;
-
-        private ExitException(final int status) {
-            this.status = status;
-        }
+        command.exit();
+        assertTrue(shell.isShutdown());
+        verify(inputProvider, times(1)).exit();
+        verify(outputProvider, times(1)).exit();
     }
 }
