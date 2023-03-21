@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
-import static de.am.common.shell.ShellConstants.SUCCESSFUL;
 
 /**
  * {@code ExitCommand} shut down current running shell instance.
@@ -49,7 +48,5 @@ public class ExitCommand implements ShellInject {
         OutputProvider out = shell.getOutputProvider();
         out.println("{0}", ANSI_WHITE_BRIGHT, "Shutdown shell...");
         out.exit();
-
-        shell.shutdown();
     }
 }
