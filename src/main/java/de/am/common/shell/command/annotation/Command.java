@@ -40,14 +40,6 @@ public @interface Command {
     String name() default "";
 
     /**
-     * The description of the command.<p>
-     * Default description (if this property is not set) says "methodName(Arg1Type, Arg2Type,...) : ReturnType".
-     *
-     * @return the description or empty string "" if not set
-     */
-    String description() default "";
-
-    /**
      * The shortcut name of the command.<p>
      * If not set and, the name attribute is not set as well, the Shell takes
      * the first letter of each word (void selectUser() --- select-user --- su).
@@ -55,4 +47,12 @@ public @interface Command {
      * @return the shortcut or empty string "" if not set
      */
     String shortcut() default "";
+
+    /**
+     * The description of the command.<p>
+     * Default description (if this property is not set) says "methodName(Arg1Type, Arg2Type,...) : ReturnType".
+     *
+     * @return the description or empty string "" if not set
+     */
+    String description() default "";
 }
