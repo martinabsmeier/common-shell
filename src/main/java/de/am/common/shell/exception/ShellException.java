@@ -23,6 +23,7 @@ import de.am.common.shell.Shell;
  * @author Martin Absmeier
  */
 public class ShellException extends RuntimeException {
+    private static final long serialVersionUID = -1504917137622657688L;
 
     /**
      * Constructs a new shell exception with {@code null} as its detail message. The cause is not initialized, and may
