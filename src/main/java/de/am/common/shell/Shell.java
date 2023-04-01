@@ -17,6 +17,7 @@ package de.am.common.shell;
 
 import de.am.common.shell.command.ShellCommand;
 import de.am.common.shell.command.ShellCommandDictionary;
+import de.am.common.shell.exception.ShellException;
 import de.am.common.shell.io.InputProvider;
 import de.am.common.shell.io.OutputProvider;
 import de.am.common.shell.util.StopWatch;
@@ -154,9 +155,7 @@ public class Shell {
             }
             return method.invoke(instance, parameters);
         } catch (Exception ex) {
-            exception = ex;
-            outputProvider.println("{0}", ANSI_WHITE_BRIGHT, EX_MESSAGE);
-            return null;
+            throw new ShellException(ex.getMessage(), ex);
         }
     }
 }
