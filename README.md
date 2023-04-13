@@ -1,26 +1,27 @@
 [![Java CI with Maven](https://github.com/martinabsmeier/common-shell/actions/workflows/maven.yml/badge.svg)](https://github.com/martinabsmeier/common-shell/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/martinabsmeier/common-shell/actions/workflows/codeql.yml/badge.svg)](https://github.com/martinabsmeier/common-shell/actions/workflows/codeql.yml)
 [![Coverage](https://github.com/martinabsmeier/common-shell/actions/workflows/coverage.yml/badge.svg)](https://github.com/martinabsmeier/common-shell/actions/workflows/coverage.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=martinabsmeier_common-shell&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=martinabsmeier_common-shell)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 # Shell library
-Java library that makes it easier to create and run your own shell commands.
+**Annotated Method Shell Command Java Library**  
+This is a Java library that allows you to create and process annotated methods as shell commands. It provides a simple 
+and easy-to-use interface for defining shell commands as methods in your Java code, and for executing those commands from 
+the command line.
 
-## Advantages
-* Zero dependencies only JRE is required.
+## Features
 * Provides annotations to create a interactive command-line user interfaces.
 * Create commands and call a specific method for execution
 * No need to parse arguments
+* Handles errors and exceptions
 
 ## Dependencies
 The *shell* library has zero dependencies.
 
 ## Getting Started
 ### Requirements
-- Installed java SDK minimum is version 11 see [Adoptium](https://adoptium.net/de/).
-- Installed maven build tool see [Maven](https://maven.apache.org)
-- Clone the repository from GitHub.
+* Installed java SDK minimum is version 11 see [Adoptium](https://adoptium.net/de/).
+* Installed maven build tool see [Maven](https://maven.apache.org)
+* Clone the repository from GitHub.
 
 ### Clone the common-shell repository
 ```shell
@@ -37,8 +38,39 @@ mvn clean install
 mvn test
 ```
 
-## User guide
-Add some examples
+## Usage
+
+### Annotation
+* **@Command(name = '', shortcut)**  
+  RRsssd
+* **@CommandParameter**  
+  sddddddf
+
+To use this library, you must first create a class that implements the *ShellInject* interface, this class contains one 
+or more methods annotated with *@Command*:
+
+```java
+public class MyCommands implements ShellInject {
+
+    private Shell shell;
+
+    public void setShell(Shell shell) {
+        this.shell = shell;
+    }
+
+    @Command
+    public void echo(String message) {
+        OutputProvider out = shell.getOutputProvider();
+        out.println("Echo -> {0}", message);
+    }
+}
+```
+Bla lba
+
+
+```java
+
+```
 
 ## Releases
 * For available releases, see the [repository release list](https://github.com/martinabsmeier/common-shell/releases).
