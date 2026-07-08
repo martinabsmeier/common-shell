@@ -25,8 +25,10 @@ import de.am.common.shell.command.ShellCommandParameter;
 import de.am.common.shell.command.ShowExceptionCommand;
 import de.am.common.shell.command.VersionCommand;
 import de.am.common.shell.command.annotation.Command;
+import de.am.common.shell.command.annotation.CommandParameter;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -110,14 +112,23 @@ public final class ShellFactory {
     }
 
     private static ShellCommandParameter[] createParameters(Method method) {
-        Class<?>[] methodParamTypes = method.getParameterTypes();
-        ShellCommandParameter[] commandParameters = new ShellCommandParameter[methodParamTypes.length];
+        Parameter[] methodParameters = method.getParameters();
+        ShellCommandParameter[] commandParameters = new ShellCommandParameter[methodParameters.length];
 
-        if (methodParamTypes.length > 0) {
+        if (methodParameters.length > 0) {
             int index = 0;
-            for (Class<?> methodParamType : methodParamTypes) {
-                String name = "param" + index;
-                commandParameters[index] = ShellCommandParameter.builder().index(index).name(name).type(methodParamType).build();
+            for (Parameter methodParameter : methodParameters) {
+                CommandParameter parameterAnnotation = methodParameter.getAnnotation(CommandParameter.class);
+                String name = parameterAnnotation == null || parameterAnnotation.name().isEmpty()
+                    ? "param" + index
+                    : parameterAnnotation.name();
+                String description = parameterAnnotation == null ? "" : parameterAnnotation.description();
+                commandParameters[index] = ShellCommandParameter.builder()
+                    .index(index)
+                    .name(name)
+                    .description(description)
+                    .type(methodParameter.getType())
+                    .build();
                 index++;
             }
         }

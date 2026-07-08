@@ -16,7 +16,9 @@
 package de.am.common.shell;
 
 import de.am.common.shell.command.ShellCommand;
+import de.am.common.shell.command.ShellCommandParameter;
 import de.am.common.shell.command.annotation.Command;
+import de.am.common.shell.command.annotation.CommandParameter;
 import de.am.common.shell.io.OutputProvider;
 import org.junit.jupiter.api.Test;
 
@@ -78,6 +80,22 @@ class ShellFactoryTest {
         assertNotNull(commands, "We expect commands.");
     }
 
+    @Test
+    void createShellUsesCommandParameterMetadata() {
+        ShellConfig config = ShellConfig.builder().build();
+        Shell actual = ShellFactory.createShell(config, new ParameterizedCommands());
+
+        ShellCommand command = actual.getDictionary().getCommands().stream()
+            .filter(shellCommand -> "annotated".equals(shellCommand.getName()))
+            .findFirst()
+            .orElse(null);
+        assertNotNull(command, "A command instance is expected.");
+
+        ShellCommandParameter parameter = command.getParameters()[0];
+        assertEquals("file-name", parameter.getName(), "Annotated parameter name should be used.");
+        assertEquals("A file passed from the shell.", parameter.getDescription(), "Annotated parameter description should be used.");
+    }
+
     // #################################################################################################################
 
     private static class TestCommands implements ShellInject {
@@ -104,6 +122,14 @@ class ShellFactoryTest {
         public void commandEmp() {
             OutputProvider out = shell.getOutputProvider();
             out.println("{}", "Annotated with @Command");
+        }
+    }
+
+    private static class ParameterizedCommands {
+
+        @Command(name = "annotated")
+        public void annotated(@CommandParameter(name = "file-name", description = "A file passed from the shell.") String fileName) {
+            // nothing to do
         }
     }
 }

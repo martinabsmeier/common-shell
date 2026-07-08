@@ -18,6 +18,7 @@ package de.am.common.shell.command;
 import de.am.common.shell.Shell;
 import de.am.common.shell.ShellInject;
 import de.am.common.shell.command.annotation.Command;
+import de.am.common.shell.command.annotation.CommandParameter;
 import de.am.common.shell.util.Preconditions;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,7 +41,7 @@ public class LoggingCommand implements ShellInject {
      * @param fileName the name of the log file
      */
     @Command(name = "enableLogging", shortcut = "eL", description = "Enable the logging of the shell. Parameter is the file name e.g. myLogFile.log.")
-    public void enableLogging(String fileName) {
+    public void enableLogging(@CommandParameter(name = "file-name", description = "The name of the log file.") String fileName) {
         Preconditions.checkNotNull(fileName, "fileName");
 
         fileName = System.getProperty("user.dir").concat(separator).concat(fileName);

@@ -35,6 +35,8 @@ public class ShellCommandParameter {
     @Getter
     private final String name;
     @Getter
+    private final String description;
+    @Getter
     @Setter
     private String value;
     @Getter
@@ -45,13 +47,15 @@ public class ShellCommandParameter {
      *
      * @param index the index of the parameter
      * @param name  the name of the parameter
+     * @param description the description of the parameter
      * @param value the value of the parameter
      * @param type  the type of the parameter
      */
     @Builder
-    public ShellCommandParameter(int index, String name, String value, Class<?> type) {
+    public ShellCommandParameter(int index, String name, String description, String value, Class<?> type) {
         this.index = index;
         this.name = isNull(name) ? "" : name;
+        this.description = isNull(description) ? "" : description;
         this.value = isNull(value) ? "" : value;
         this.type = type;
     }

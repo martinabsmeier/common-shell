@@ -18,12 +18,16 @@ package de.am.common.shell.command;
 import de.am.common.shell.Shell;
 import de.am.common.shell.ShellConfig;
 import de.am.common.shell.ShellFactory;
+import de.am.common.shell.command.annotation.Command;
+import de.am.common.shell.command.annotation.CommandParameter;
 import de.am.common.shell.io.OutputProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -56,5 +60,33 @@ class HelpCommandTest {
     void help() {
         command.help();
         verify(outputProvider, times(1)).println(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void helpUsesAnnotatedParameterName() {
+        Shell shell = ShellFactory.createShell(
+            ShellConfig.builder().outputProvider(outputProvider).build(),
+            new ParameterizedHelpCommand()
+        );
+        command.setShell(shell);
+
+        command.help();
+
+        verify(outputProvider).println(
+            eq("{0} | {1} | {2} | {3}"),
+            anyString(),
+            contains("annotated-help"),
+            anyString(),
+            contains("(String file-name)"),
+            anyString()
+        );
+    }
+
+    private static class ParameterizedHelpCommand {
+
+        @Command(name = "annotated-help")
+        public void annotated(@CommandParameter(name = "file-name", description = "Help parameter.") String fileName) {
+            // nothing to do
+        }
     }
 }
