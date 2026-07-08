@@ -106,7 +106,9 @@ public class Shell {
                 outputProvider.println(sw.toString(), ANSI_WHITE_BRIGHT);
             }
 
-            outputProvider.print(prompt, ANSI_YELLOW_BRIGHT);
+            if (!isShutdown) {
+                outputProvider.print(prompt, ANSI_YELLOW_BRIGHT);
+            }
         }
     }
 

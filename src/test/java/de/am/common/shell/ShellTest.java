@@ -18,15 +18,19 @@ package de.am.common.shell;
 import de.am.common.shell.command.annotation.Command;
 import de.am.common.shell.io.DefaultInputProvider;
 import de.am.common.shell.io.InputProvider;
+import de.am.common.shell.io.OutputProvider;
 import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
+import static de.am.common.shell.ShellConstants.ANSI_YELLOW_BRIGHT;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -116,6 +120,18 @@ class ShellTest {
         shell.shutdown();
 
         assertTrue(shell.isShutdown());
+    }
+
+    @Test
+    void executeDoesNotPrintPromptAfterExit() {
+        OutputProvider outputProvider = mock(OutputProvider.class);
+        ShellConfig config = ShellConfig.builder().inputProvider(inputProvider).outputProvider(outputProvider).build();
+        shell = ShellFactory.createShell(config);
+
+        when(inputProvider.readCommand()).thenReturn("exit");
+
+        shell.execute();
+        verify(outputProvider, times(1)).print(shell.getPrompt(), ANSI_YELLOW_BRIGHT);
     }
 
     public static class ExceptionCommand implements ShellInject {
