@@ -206,12 +206,15 @@ GitHub Actions workflows in this repository currently provide:
 - Maven build and test verification
 - JaCoCo coverage report generation as workflow artifacts
 - CodeQL analysis
+- GitHub release creation for version tags such as `v1.2.0`
 
 ## Project status
 
 - Releases: [GitHub Releases](https://github.com/martinabsmeier/common-shell/releases)
 - Tags: [GitHub Tags](https://github.com/martinabsmeier/common-shell/tags)
 - Versioning: [Semantic Versioning](https://semver.org/)
+
+You can publish a release either by pushing a tag like `v1.2.0` or by starting the `Release` workflow manually in GitHub Actions and providing the desired tag name.
 
 ## Contributing
 
