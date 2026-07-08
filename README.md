@@ -13,12 +13,14 @@ It discovers command methods via annotations, parses command arguments, provides
 
 - Zero runtime dependencies
 - Annotation-based command registration
+- Reused command handler instances across invocations
 - Auto-generated command shortcuts
 - Built-in commands for `help`, `exit`, `version`, exception display, logging, and execution time display
 - Typed parameter conversion for common Java types
 - Quoted argument parsing for commands such as `"hello world"`
 - Configurable limits for command length and log entry length
 - Safer defaults for exception display and log file handling
+- Clean console output without logging prefixes
 
 ## Requirements
 
@@ -95,9 +97,9 @@ The shell automatically registers these commands:
 | Command | Purpose |
 |---|---|
 | `help` | Show all registered commands |
-| `exit` | Stop the shell |
+| `exit` | Stop the shell loop |
 | `version` | Show library/runtime version information |
-| `showException` / `sE` | Show the last exception |
+| `showException` / `sE` | Show the last exception type, or full details if enabled |
 | `enableLogging` / `eL` | Write shell output to a log file |
 | `disableLogging` / `dL` | Stop writing shell output to a log file |
 | `enableTimeDisplay` | Show command runtime |
@@ -130,6 +132,7 @@ Shell shell = ShellFactory.createShell(config, new DemoCommands());
 - Log files must be simple file names in the current working directory
 - Log file targets that are symbolic links or non-regular files are rejected
 - Excessively long commands are rejected
+- End-of-input (EOF) stops the shell cleanly
 
 ## Accessing the running shell
 
@@ -155,6 +158,8 @@ public class AdminCommands implements ShellInject {
     }
 }
 ```
+
+`shutdown()` stops the shell loop only. It does not terminate the host JVM with `System.exit(...)`.
 
 ## Parameter handling
 
@@ -189,6 +194,15 @@ disableLogging
 ```
 
 When no `.log` suffix is provided, it is appended automatically.
+
+## CI and quality
+
+GitHub Actions workflows in this repository currently provide:
+
+- Maven build and test verification
+- JaCoCo coverage report generation as workflow artifacts
+- CodeQL analysis
+- SonarCloud analysis
 
 ## Project status
 
