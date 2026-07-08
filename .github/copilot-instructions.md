@@ -27,8 +27,8 @@ mvn test -Dtest=ShellTest#testRunCommand
 mvn clean package -DskipTests
 ```
 
-### Check code quality with SonarCloud
-The CI/CD pipeline automatically runs CodeQL and uploads coverage to SonarCloud. For details, see `.github/workflows/`.
+### Check code quality and coverage
+The CI/CD pipeline runs Maven verification, CodeQL, and publishes JaCoCo coverage artifacts. For details, see `.github/workflows/`.
 
 ## High-Level Architecture
 

@@ -1,6 +1,6 @@
 [![Java CI with Maven](https://github.com/martinabsmeier/common-shell/actions/workflows/maven.yml/badge.svg)](https://github.com/martinabsmeier/common-shell/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/martinabsmeier/common-shell/actions/workflows/codeql.yml/badge.svg)](https://github.com/martinabsmeier/common-shell/actions/workflows/codeql.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=martinabsmeier_common-shell&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=martinabsmeier_common-shell)
+[![Coverage](https://github.com/martinabsmeier/common-shell/actions/workflows/coverage.yml/badge.svg)](https://github.com/martinabsmeier/common-shell/actions/workflows/coverage.yml)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 # common-shell
@@ -132,6 +132,8 @@ Shell shell = ShellFactory.createShell(config, new DemoCommands());
 - Log files must be simple file names in the current working directory
 - Log file targets that are symbolic links or non-regular files are rejected
 - Excessively long commands are rejected
+- Default `maxCommandLength`: `4096`
+- Default `maxLogEntryLength`: `16384`
 - End-of-input (EOF) stops the shell cleanly
 
 ## Accessing the running shell
@@ -195,6 +197,8 @@ disableLogging
 
 When no `.log` suffix is provided, it is appended automatically.
 
+For safety reasons, logging only accepts plain file names in the current working directory. Path traversal, nested paths, absolute paths, symbolic links, and non-regular files are rejected.
+
 ## CI and quality
 
 GitHub Actions workflows in this repository currently provide:
@@ -202,7 +206,6 @@ GitHub Actions workflows in this repository currently provide:
 - Maven build and test verification
 - JaCoCo coverage report generation as workflow artifacts
 - CodeQL analysis
-- SonarCloud analysis
 
 ## Project status
 
