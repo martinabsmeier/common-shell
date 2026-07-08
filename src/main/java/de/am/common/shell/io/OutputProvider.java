@@ -59,6 +59,7 @@ public interface OutputProvider {
 
     /**
      * Turns on writing to a log file, the file specified by {@code fileName} is created in "user.dir".
+     * The file name must not contain path elements.
      *
      * @param fileName the name of the log file
      */

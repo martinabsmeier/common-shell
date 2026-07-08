@@ -43,14 +43,11 @@ public class LoggingCommand implements ShellInject {
     @Command(name = "enableLogging", shortcut = "eL", description = "Enable the logging of the shell. Parameter is the file name e.g. myLogFile.log.")
     public void enableLogging(@CommandParameter(name = "file-name", description = "The name of the log file.") String fileName) {
         Preconditions.checkNotNull(fileName, "fileName");
-
-        Path logFile = Path.of(System.getProperty("user.dir"), fileName);
-        String normalizedFileName = logFile.toString();
-        if (!normalizedFileName.endsWith(".log")) {
-            normalizedFileName = normalizedFileName + ".log";
+        Path normalizedPath = Path.of(fileName.trim()).normalize();
+        if (normalizedPath.isAbsolute() || normalizedPath.getNameCount() != 1) {
+            throw new IllegalArgumentException("The file name for logging must not contain path elements.");
         }
-
-        shell.enableLogging(normalizedFileName);
+        shell.enableLogging(fileName);
     }
 
     /**

@@ -21,9 +21,11 @@ import de.am.common.shell.io.DefaultOutputProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,22 +61,29 @@ class LoggingCommandTest {
 
     @Test
     void enableLogging() {
-        doNothing().when(outputProvider).enableLogging(anyString());
+        doNothing().when(outputProvider).enableLogging(eq("logfile.log"));
 
         String fileName = "logfile.log";
         command.enableLogging(fileName);
 
-        verify(outputProvider).enableLogging(anyString());
+        verify(outputProvider).enableLogging(eq("logfile.log"));
     }
 
     @Test
     void enableLoggingNoExtension() {
-        doNothing().when(outputProvider).enableLogging(anyString());
+        doNothing().when(outputProvider).enableLogging(eq("logfile"));
 
         String fileName = "logfile";
         command.enableLogging(fileName);
 
-        verify(outputProvider).enableLogging(anyString());
+        verify(outputProvider).enableLogging(eq("logfile"));
+    }
+
+    @Test
+    void enableLoggingRejectsPathTraversal() {
+        String fileName = ".." + File.separator + "logfile";
+
+        assertThrows(IllegalArgumentException.class, () -> command.enableLogging(fileName));
     }
 
     @Test

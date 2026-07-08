@@ -18,6 +18,7 @@ package de.am.common.shell;
 import org.junit.jupiter.api.Test;
 
 import static de.am.common.shell.ShellConstants.DEFAULT_APP_NAME;
+import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_EXCEPTION_DETAILS;
 import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_TIME;
 import static de.am.common.shell.ShellConstants.DEFAULT_PROMPT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,6 +37,7 @@ class ShellConfigTest {
         assertEquals(DEFAULT_PROMPT, config.getPrompt());
         assertEquals(DEFAULT_APP_NAME, config.getAppName());
         assertEquals(DEFAULT_DISPLAY_TIME, config.isTimeDisplayed());
+        assertEquals(DEFAULT_DISPLAY_EXCEPTION_DETAILS, config.isExceptionDetailsDisplayed());
     }
 
     @Test
@@ -43,11 +45,18 @@ class ShellConfigTest {
         String prompt = "->";
         String appName = "TestApp";
         boolean isEnabled = true;
+        boolean showExceptionDetails = true;
 
-        ShellConfig config = ShellConfig.builder().prompt(prompt).appName(appName).isTimeDisplayed(isEnabled).build();
+        ShellConfig config = ShellConfig.builder()
+            .prompt(prompt)
+            .appName(appName)
+            .isTimeDisplayed(isEnabled)
+            .isExceptionDetailsDisplayed(showExceptionDetails)
+            .build();
 
         assertEquals(prompt, config.getPrompt());
         assertEquals(appName, config.getAppName());
         assertEquals(isEnabled, config.isTimeDisplayed());
+        assertEquals(showExceptionDetails, config.isExceptionDetailsDisplayed());
     }
 }

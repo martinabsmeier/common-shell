@@ -46,6 +46,8 @@ public class ShowExceptionCommand implements ShellInject {
         Exception exception = shell.getException();
         if (exception == null) {
             out.println("{0}", ANSI_WHITE_BRIGHT, "No exception occurred.");
+        } else if (!shell.isExceptionDetailsDisplayed()) {
+            out.println("{0}", ANSI_WHITE_BRIGHT, "Exception type: " + exception.getClass().getName());
         } else {
             String message = Objects.isNull(exception.getMessage()) ? "No message" : exception.getMessage();
             out.println("Message   : {0}", ANSI_WHITE_BRIGHT, message);

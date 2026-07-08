@@ -23,6 +23,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import static de.am.common.shell.ShellConstants.DEFAULT_APP_NAME;
+import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_EXCEPTION_DETAILS;
 import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_TIME;
 import static de.am.common.shell.ShellConstants.DEFAULT_PROMPT;
 import static de.am.common.shell.util.Preconditions.isNullOrEmpty;
@@ -44,6 +45,8 @@ public class ShellConfig {
     private final OutputProvider outputProvider;
     @Getter
     private final boolean isTimeDisplayed;
+    @Getter
+    private final boolean isExceptionDetailsDisplayed;
 
     /**
      * Create a new instance of {@code ShellConfig}.
@@ -53,18 +56,21 @@ public class ShellConfig {
      * @param inputProvider   the input provider of shell
      * @param outputProvider  the output provider of shell
      * @param isTimeDisplayed true if the runtime of commands should be measured, false otherwise
+     * @param isExceptionDetailsDisplayed true if exception details should be exposed, false otherwise
      */
     @Builder
     public ShellConfig(String prompt,
                        String appName,
                        InputProvider inputProvider,
                        OutputProvider outputProvider,
-                       Boolean isTimeDisplayed)
+                       Boolean isTimeDisplayed,
+                       Boolean isExceptionDetailsDisplayed)
     {
         this.prompt = isNullOrEmpty(prompt) ? DEFAULT_PROMPT : prompt;
         this.appName = isNullOrEmpty(appName) ? DEFAULT_APP_NAME : appName;
         this.inputProvider = isNull(inputProvider) ? DefaultInputProvider.builder().build() : inputProvider;
         this.outputProvider = isNull(outputProvider) ? DefaultOutputProvider.builder().build() : outputProvider;
         this.isTimeDisplayed = isNull(isTimeDisplayed) ? DEFAULT_DISPLAY_TIME : isTimeDisplayed;
+        this.isExceptionDetailsDisplayed = isNull(isExceptionDetailsDisplayed) ? DEFAULT_DISPLAY_EXCEPTION_DETAILS : isExceptionDetailsDisplayed;
     }
 }

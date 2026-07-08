@@ -22,19 +22,14 @@ import lombok.Builder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.logging.Logger;
 
 import static de.am.common.shell.ShellConstants.ANSI_RESET;
-import static de.am.common.shell.ShellConstants.LOGGING_PROPERTIES_FILE_NAME;
-import static de.am.common.shell.ShellConstants.LOGGING_PROPERTIES_KEY;
 import static de.am.common.shell.ShellConstants.NEW_LINE;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.text.MessageFormat.format;
 import static java.util.Objects.isNull;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 
 /**
@@ -56,14 +51,6 @@ public class DefaultOutputProvider implements OutputProvider {
      */
     @Builder
     public DefaultOutputProvider(Logger logger) {
-        // Read the configuration
-        URL loggingPropertiesResource = requireNonNull(getClass().getClassLoader().getResource(LOGGING_PROPERTIES_FILE_NAME));
-        try {
-            System.setProperty(LOGGING_PROPERTIES_KEY, Path.of(loggingPropertiesResource.toURI()).toString());
-        } catch (URISyntaxException ex) {
-            throw new IllegalStateException("Can not access logging properties resource.", ex);
-        }
-
         this.logger = isNull(logger) ? Logger.getLogger("ConsoleLogger") : logger;
         this.isLoggingEnabled = false;
         this.logFilePath = null;
@@ -111,12 +98,24 @@ public class DefaultOutputProvider implements OutputProvider {
 
     // #################################################################################################################
     private void initLogFile(String fileName) {
-        // Add .log if necessary
-        if (!fileName.endsWith(".log")) {
-            fileName = fileName + ".log";
+        Preconditions.checkNotNull(fileName, "fileName");
+
+        String trimmedFileName = fileName.trim();
+        if (trimmedFileName.isEmpty()) {
+            throw new IllegalArgumentException("The file name for logging must not be empty.");
         }
 
-        logFilePath = Path.of(fileName);
+        Path normalizedPath = Path.of(trimmedFileName).normalize();
+        if (normalizedPath.isAbsolute() || normalizedPath.getNameCount() != 1) {
+            throw new IllegalArgumentException("The file name for logging must not contain path elements.");
+        }
+
+        String normalizedFileName = normalizedPath.toString();
+        if (!normalizedFileName.endsWith(".log")) {
+            normalizedFileName = normalizedFileName + ".log";
+        }
+
+        logFilePath = Path.of(System.getProperty("user.dir"), normalizedFileName).normalize();
     }
 
     private void writeString(String pattern, Object... arguments) {

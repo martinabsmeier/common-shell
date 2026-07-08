@@ -54,6 +54,9 @@ public class Shell {
     @Getter
     @Setter
     private boolean isTimeDisplayed;
+    @Getter
+    @Setter
+    private boolean isExceptionDetailsDisplayed;
     private final StopWatch sw;
 
     private static final String EX_MESSAGE = "Exception occurred, run 'showException' or 'sE' to see the details.";
@@ -71,6 +74,7 @@ public class Shell {
         this.outputProvider = config.getOutputProvider();
         this.prompt = config.getAppName() + config.getPrompt();
         this.isTimeDisplayed = config.isTimeDisplayed();
+        this.isExceptionDetailsDisplayed = config.isExceptionDetailsDisplayed();
         this.sw = StopWatch.builder().build();
     }
 

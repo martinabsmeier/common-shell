@@ -36,6 +36,10 @@ public final class ShellConstants {
      * The execution time of commands is not measured by default
      */
     public static final boolean DEFAULT_DISPLAY_TIME = false;
+    /**
+     * Exception details are hidden by default
+     */
+    public static final boolean DEFAULT_DISPLAY_EXCEPTION_DETAILS = false;
 
     // #################################################################################################################
     // Common constants
@@ -75,17 +79,6 @@ public final class ShellConstants {
      * RegEx uses to create a shortcut name of a command
      */
     public static final String SPLIT_REGEX = "(?<!(^|[A-Z]))(?=[A-Z])|(?<!^)(?=[A-Z][a-z])";
-
-    // #################################################################################################################
-    // Logging configuration
-    /**
-     * System property key of java logging config file
-     */
-    public static final String LOGGING_PROPERTIES_KEY = "java.util.logging.config.file";
-    /**
-     * File name of java logging properties file
-     */
-    public static final String LOGGING_PROPERTIES_FILE_NAME = "logging.properties";
 
     // #################################################################################################################
     // ANSI colors

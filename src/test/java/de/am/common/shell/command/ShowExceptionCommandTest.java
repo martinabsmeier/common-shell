@@ -24,7 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -61,6 +64,20 @@ class ShowExceptionCommandTest {
     @Test
     void showException() {
         Shell shell = ShellFactory.createShell(ShellConfig.builder().outputProvider(outputProvider).build());
+        RuntimeException exception = new RuntimeException("JUnit test.");
+        shell.setException(exception);
+        command.setShell(shell);
+
+        command.showException();
+        verify(outputProvider).println(eq("{0}"), anyString(), contains("Exception type: java.lang.RuntimeException"));
+        verify(outputProvider, never()).println(eq("Message   : {0}"), anyString(), anyString());
+    }
+
+    @Test
+    void showExceptionDetailsEnabled() {
+        Shell shell = ShellFactory.createShell(
+            ShellConfig.builder().outputProvider(outputProvider).isExceptionDetailsDisplayed(true).build()
+        );
         RuntimeException exception = new RuntimeException("JUnit test.");
         shell.setException(exception);
         command.setShell(shell);

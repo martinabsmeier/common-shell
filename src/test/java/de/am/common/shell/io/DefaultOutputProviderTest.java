@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,6 +99,20 @@ class DefaultOutputProviderTest {
     }
 
     @Test
+    void enableLoggingRejectsNestedPath() {
+        String nestedFileName = "nested" + File.separator + "logfile";
+
+        assertThrows(IllegalArgumentException.class, () -> outputProvider.enableLogging(nestedFileName));
+    }
+
+    @Test
+    void enableLoggingRejectsAbsolutePath() {
+        String absoluteFileName = Path.of(System.getProperty("user.home"), "logfile.log").toString();
+
+        assertThrows(IllegalArgumentException.class, () -> outputProvider.enableLogging(absoluteFileName));
+    }
+
+    @Test
     void enableLogging() {
         String fileName = "logWithExtension.log";
         outputProvider.enableLogging(fileName);
@@ -108,6 +123,24 @@ class DefaultOutputProviderTest {
         String pathAndFileName = System.getProperty("user.dir").concat(File.separator).concat(fileName);
         File logFile = new File(pathAndFileName);
         assertTrue(logFile.delete(), "Can not delete log file.");
+    }
+
+    @Test
+    void constructorDoesNotChangeLoggingSystemProperty() {
+        String propertyKey = "java.util.logging.config.file";
+        String originalValue = System.getProperty(propertyKey);
+
+        try {
+            System.setProperty(propertyKey, "existing-config.properties");
+            DefaultOutputProvider.builder().logger(logger).build();
+            assertTrue("existing-config.properties".equals(System.getProperty(propertyKey)));
+        } finally {
+            if (originalValue == null) {
+                System.clearProperty(propertyKey);
+            } else {
+                System.setProperty(propertyKey, originalValue);
+            }
+        }
     }
 
     @Test
