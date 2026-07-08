@@ -57,7 +57,7 @@ public class DefaultOutputProvider implements OutputProvider {
      */
     @Builder
     public DefaultOutputProvider(Logger logger, Integer maxLogEntryLength) {
-        this.logger = isNull(logger) ? Logger.getLogger("ConsoleLogger") : logger;
+        this.logger = logger;
         this.maxLogEntryLength = isNull(maxLogEntryLength) ? DEFAULT_MAX_LOG_ENTRY_LENGTH : maxLogEntryLength;
         this.isLoggingEnabled = false;
         this.logFilePath = null;
@@ -67,8 +67,10 @@ public class DefaultOutputProvider implements OutputProvider {
     public void print(String pattern, String ansiColour, Object... arguments) {
         Preconditions.checkNotNull(pattern, "pattern");
         pattern = isNull(ansiColour) ? pattern : ansiColour.concat(pattern).concat(ANSI_RESET);
+        String formattedContent = format(pattern, arguments);
+        System.out.print(formattedContent);
 
-        if (logger.isLoggable(INFO)) {
+        if (!isNull(logger) && logger.isLoggable(INFO)) {
             logger.log(INFO, pattern, arguments);
         }
 
@@ -81,8 +83,9 @@ public class DefaultOutputProvider implements OutputProvider {
     @Override
     public void println(String pattern, String ansiColour, Object... arguments) {
         print(pattern, ansiColour, arguments);
+        System.out.print(NEW_LINE);
 
-        if (logger.isLoggable(INFO)) {
+        if (!isNull(logger) && logger.isLoggable(INFO)) {
             logger.log(INFO, NEW_LINE);
         }
     }

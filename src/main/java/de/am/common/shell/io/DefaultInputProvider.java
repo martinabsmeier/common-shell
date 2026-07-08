@@ -43,6 +43,9 @@ public class DefaultInputProvider implements InputProvider {
 
     @Override
     public String readCommand() {
+        if (!scanner.hasNextLine()) {
+            return null;
+        }
         return scanner.nextLine();
     }
 

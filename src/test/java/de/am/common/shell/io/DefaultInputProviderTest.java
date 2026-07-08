@@ -46,6 +46,7 @@ class DefaultInputProviderTest {
     @Test
     void readCommand() {
         String expected = "help";
+        when(scanner.hasNextLine()).thenReturn(true);
         when(scanner.nextLine()).thenReturn(expected);
 
         String actual = provider.readCommand();
@@ -55,10 +56,19 @@ class DefaultInputProviderTest {
     @Test
     void readCommandLongValue() {
         String expected = "very-long-command";
+        when(scanner.hasNextLine()).thenReturn(true);
         when(scanner.nextLine()).thenReturn(expected);
 
         String actual = provider.readCommand();
         assertEquals(expected, actual, "The input provider should return the raw command.");
+    }
+
+    @Test
+    void readCommandEndOfInput() {
+        when(scanner.hasNextLine()).thenReturn(false);
+
+        String actual = provider.readCommand();
+        assertEquals(null, actual, "End of input should return null.");
     }
 
     @Test

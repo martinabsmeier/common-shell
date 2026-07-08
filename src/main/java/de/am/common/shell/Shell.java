@@ -88,6 +88,10 @@ public class Shell {
         String command;
         while (!isShutdown) {
             command = inputProvider.readCommand();
+            if (command == null) {
+                shutdown();
+                break;
+            }
 
             sw.setId(command);
             sw.start();
