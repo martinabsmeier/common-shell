@@ -22,6 +22,7 @@ import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -86,6 +87,18 @@ class ShellTest {
         assertNotNull(shell.getException());
     }
 
+    @Test
+    void executeUsesRegisteredCommandInstance() {
+        CountingCommand commandHandler = new CountingCommand();
+        ShellConfig config = ShellConfig.builder().inputProvider(inputProvider).build();
+        shell = ShellFactory.createShell(config, commandHandler);
+
+        when(inputProvider.readCommand()).thenReturn("count").thenReturn("count").thenReturn("exit");
+
+        shell.execute();
+        assertEquals(2, commandHandler.counter, "The registered command handler should be reused.");
+    }
+
     public static class ExceptionCommand implements ShellInject {
         @Setter
         private Shell shell;
@@ -98,6 +111,15 @@ class ShellTest {
                 throw new NullPointerException();
             }
             shell.getOutputProvider().println("Nothing to do.", ANSI_WHITE_BRIGHT);
+        }
+    }
+
+    public static class CountingCommand {
+        private int counter;
+
+        @Command(name = "count")
+        public void count() {
+            counter++;
         }
     }
 }

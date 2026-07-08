@@ -25,8 +25,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.lang.reflect.Method;
-
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
 import static de.am.common.shell.ShellConstants.ANSI_YELLOW_BRIGHT;
 import static de.am.common.shell.ShellConstants.SUCCESSFUL;
@@ -132,8 +130,7 @@ public class Shell {
         try {
             ShellCommand cmd = dictionary.getCommand(command);
             if (nonNull(cmd)) {
-                Method method = cmd.getMethod();
-                Object result = executeMethod(method, cmd.getTypedParameters());
+                Object result = executeMethod(cmd, cmd.getTypedParameters());
                 if (nonNull(result)) {
                     outputProvider.println("{0}", ANSI_WHITE_BRIGHT, result);
                 }
@@ -146,14 +143,9 @@ public class Shell {
         }
     }
 
-    private Object executeMethod(Method method, Object[] parameters) {
+    private Object executeMethod(ShellCommand command, Object[] parameters) {
         try {
-            Class<?> clazz = Class.forName(method.getDeclaringClass().getName());
-            Object instance = clazz.getDeclaredConstructor().newInstance();
-            if (ShellInject.class.isAssignableFrom(clazz)) {
-                ((ShellInject) instance).setShell(this);
-            }
-            return method.invoke(instance, parameters);
+            return command.getMethod().invoke(command.getCommandHandler(), parameters);
         } catch (Exception ex) {
             throw new ShellException(ex.getMessage(), ex);
         }

@@ -26,6 +26,7 @@ import static de.am.common.shell.ShellConstants.DEFAULT_APP_NAME;
 import static de.am.common.shell.ShellConstants.DEFAULT_PROMPT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * JUnit test cases of {@link ShellFactory} class.
@@ -68,8 +69,10 @@ class ShellFactoryTest {
     @Test
     void createShellCommands() {
         ShellConfig config = ShellConfig.builder().build();
-        Shell actual = ShellFactory.createShell(config, new TestCommands());
+        TestCommands handler = new TestCommands();
+        Shell actual = ShellFactory.createShell(config, handler);
         assertNotNull(actual, "An instance of the Shell class is expected.");
+        assertSame(actual, handler.shell, "Shell should be injected into the registered handler.");
 
         List<ShellCommand> commands = actual.getDictionary().getCommands();
         assertNotNull(commands, "We expect commands.");

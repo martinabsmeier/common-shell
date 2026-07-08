@@ -72,8 +72,9 @@ public final class ShellFactory {
             .flatMap(List::stream)
             .collect(Collectors.toList());
         ShellCommandDictionary dictionary = ShellCommandDictionary.builder().commands(commands).build();
-
-        return Shell.builder().config(config).dictionary(dictionary).build();
+        Shell shell = Shell.builder().config(config).dictionary(dictionary).build();
+        injectShell(shell, commandList);
+        return shell;
     }
 
     // #################################################################################################################
@@ -90,7 +91,7 @@ public final class ShellFactory {
                     String description = cmdAnnotation.description();
                     commands.add(
                         ShellCommand.builder()
-                            .method(method).name(name).shortcut(shortCut).description(description)
+                            .method(method).commandHandler(commandHandler).name(name).shortcut(shortCut).description(description)
                             .parameters(createParameters(method))
                             .build()
                     );
@@ -141,6 +142,13 @@ public final class ShellFactory {
         }
 
         return commandHandlerList;
+    }
+
+    private static void injectShell(Shell shell, List<Object> commandHandlers) {
+        commandHandlers.stream()
+            .filter(ShellInject.class::isInstance)
+            .map(ShellInject.class::cast)
+            .forEach(handler -> handler.setShell(shell));
     }
 
     private static String createShortCut(String methodName) {

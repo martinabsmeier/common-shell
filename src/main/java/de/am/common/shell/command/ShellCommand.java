@@ -38,23 +38,27 @@ public class ShellCommand {
     @Getter
     private final Method method;
     @Getter
+    private final Object commandHandler;
+    @Getter
     private final ShellCommandParameter[] parameters;
 
     /**
      * Creates a new instance of {@link ShellCommand} class.
      *
-     * @param name        the name of the command
-     * @param description the description of the command
-     * @param shortcut    the shortcut of the command
-     * @param method      the method to call
-     * @param parameters  the parameters of the method to call
+     * @param name           the name of the command
+     * @param description    the description of the command
+     * @param shortcut       the shortcut of the command
+     * @param method         the method to call
+     * @param commandHandler the command handler instance owning the method
+     * @param parameters     the parameters of the method to call
      */
     @Builder
-    public ShellCommand(String name, String description, String shortcut, Method method, ShellCommandParameter[] parameters) {
+    public ShellCommand(String name, String description, String shortcut, Method method, Object commandHandler, ShellCommandParameter[] parameters) {
         this.name = name;
         this.description = description;
         this.shortcut = shortcut;
         this.method = method;
+        this.commandHandler = commandHandler;
         this.parameters = parameters;
     }
 
@@ -68,7 +72,7 @@ public class ShellCommand {
 
         if (paramTypes.length != parameters.length) {
             String message = "Number of parameters does not match, the method expects " + paramTypes.length
-                + " parameters. Run help to show method signature.";
+                    + " parameters. Run help to show method signature.";
             throw new IllegalArgumentException(message);
         }
 
