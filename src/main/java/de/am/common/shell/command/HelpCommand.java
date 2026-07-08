@@ -22,7 +22,9 @@ import de.am.common.shell.io.OutputProvider;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
 import static java.lang.Math.max;
@@ -87,19 +89,13 @@ public class HelpCommand implements ShellInject {
         OutputProvider out = shell.getOutputProvider();
         out.println("{0} | {1} | {2} | {3}", ANSI_WHITE_BRIGHT, command, shortCut, parameter, description);
 
-        String lineDelim = createDelim(maxLength[0]).concat("|")
-            .concat(createDelim(maxLength[1])).concat("-|")
-            .concat(createDelim(maxLength[2])).concat("-|")
-            .concat(createDelim(maxLength[3]));
+        String lineDelim = createDelim(maxLength[0]) + "|" + createDelim(maxLength[1]) + "-|"
+            + createDelim(maxLength[2]) + "-|" + createDelim(maxLength[3]);
         out.println("{0}", ANSI_WHITE_BRIGHT, lineDelim);
     }
 
     private String createDelim(int nTimes) {
-        String result = "";
-        for (int i = 0; i <= nTimes; i++) {
-            result = result.concat("-");
-        }
-        return result;
+        return "-".repeat(nTimes + 1);
     }
 
     private String formatParameters(ShellCommandParameter[] parameters) {
@@ -107,15 +103,9 @@ public class HelpCommand implements ShellInject {
             return "(no parameter)";
         }
 
-        String result = "(";
-        for (ShellCommandParameter param : parameters) {
-            String paramType = param.getType().getTypeName();
-            paramType = paramType.substring(paramType.lastIndexOf('.') + 1);
-            String paramName = param.getName();
-            result = result.concat(paramType).concat(" ").concat(paramName).concat(", ");
-        }
-
-        return result.substring(0, result.length() - 2).concat(")");
+        return Arrays.stream(parameters)
+            .map(param -> param.getType().getSimpleName() + " " + param.getName())
+            .collect(Collectors.joining(", ", "(", ")"));
     }
 
     private boolean isNullOrEmpty(String value) {
@@ -123,9 +113,6 @@ public class HelpCommand implements ShellInject {
     }
 
     private String addSpace(String value, int nTimes) {
-        while (value.length() < nTimes) {
-            value = value.concat(" ");
-        }
-        return value;
+        return value + " ".repeat(Math.max(0, nTimes - value.length()));
     }
 }

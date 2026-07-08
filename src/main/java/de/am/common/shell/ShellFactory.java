@@ -30,11 +30,9 @@ import de.am.common.shell.command.annotation.CommandParameter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static de.am.common.shell.ShellConstants.SPLIT_REGEX;
 import static java.util.Arrays.stream;
@@ -74,7 +72,7 @@ public final class ShellFactory {
         List<ShellCommand> commands = commandList.stream()
             .map(ShellFactory::createCommands)
             .flatMap(List::stream)
-            .collect(Collectors.toList());
+            .toList();
         validateUniqueCommands(commands);
         ShellCommandDictionary dictionary = ShellCommandDictionary.builder().commands(commands).build();
         Shell shell = Shell.builder().config(config).dictionary(dictionary).build();
@@ -130,19 +128,18 @@ public final class ShellFactory {
     }
 
     private static List<Object> addStandardCommands(Object... commandHandlers) {
-        List<Object> commandHandlerList = new ArrayList<>();
-
-        // Add standard commands
-        commandHandlerList.add(new LoggingCommand());
-        commandHandlerList.add(new ExitCommand());
-        commandHandlerList.add(new HelpCommand());
-        commandHandlerList.add(new ShowExceptionCommand());
-        commandHandlerList.add(new VersionCommand());
-        commandHandlerList.add(new DisplayTimeCommand());
+        List<Object> commandHandlerList = new ArrayList<>(List.of(
+            new LoggingCommand(),
+            new ExitCommand(),
+            new HelpCommand(),
+            new ShowExceptionCommand(),
+            new VersionCommand(),
+            new DisplayTimeCommand()
+        ));
 
         // Add user commands
         if (nonNull(commandHandlers) && commandHandlers.length > 0) {
-            commandHandlerList.addAll(Arrays.asList(commandHandlers));
+            commandHandlerList.addAll(List.of(commandHandlers));
         }
 
         return commandHandlerList;
@@ -177,8 +174,8 @@ public final class ShellFactory {
 
     private static String createShortCut(String methodName) {
         return stream(methodName.split(SPLIT_REGEX))
-            .map(word -> word.substring(0, 1))
-            .collect(Collectors.joining());
+            .map(word -> String.valueOf(word.charAt(0)))
+            .reduce("", String::concat);
     }
 
     private ShellFactory() {

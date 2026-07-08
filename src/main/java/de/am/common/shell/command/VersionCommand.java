@@ -63,8 +63,10 @@ public class VersionCommand implements ShellInject {
 
     // #################################################################################################################
     private Properties loadProperties() throws IOException {
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        try (InputStream propertiesStream = classLoader.getResourceAsStream(APPLICATION_PROPERTIES_FILE_NAME)) {
+        try (InputStream propertiesStream = getClass().getClassLoader().getResourceAsStream(APPLICATION_PROPERTIES_FILE_NAME)) {
+            if (propertiesStream == null) {
+                throw new IOException("Properties file [" + APPLICATION_PROPERTIES_FILE_NAME + "] not found.");
+            }
             Properties properties = new Properties();
             properties.load(propertiesStream);
             return properties;

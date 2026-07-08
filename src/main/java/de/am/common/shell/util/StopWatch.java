@@ -93,7 +93,7 @@ public class StopWatch {
 
     @Override
     public String toString() {
-        return "Command [".concat(getId()).concat("] executed in = ").concat(nanosToMillis(getDuration())).concat(" ms");
+        return "Command [%s] executed in = %s ms".formatted(getId(), nanosToMillis(getDuration()));
     }
 
     // #################################################################################################################

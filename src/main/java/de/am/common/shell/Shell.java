@@ -69,7 +69,7 @@ public class Shell {
         this.dictionary = dictionary;
         this.inputProvider = config.getInputProvider();
         this.outputProvider = config.getOutputProvider();
-        this.prompt = config.getAppName().concat(config.getPrompt());
+        this.prompt = config.getAppName() + config.getPrompt();
         this.isTimeDisplayed = config.isTimeDisplayed();
         this.sw = StopWatch.builder().build();
     }

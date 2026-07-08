@@ -22,7 +22,8 @@ import lombok.Builder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.logging.Logger;
 
 import static de.am.common.shell.ShellConstants.ANSI_RESET;
@@ -56,9 +57,12 @@ public class DefaultOutputProvider implements OutputProvider {
     @Builder
     public DefaultOutputProvider(Logger logger) {
         // Read the configuration
-        ClassLoader classLoader = getClass().getClassLoader();
-        String loggingProperties = requireNonNull(classLoader.getResource(LOGGING_PROPERTIES_FILE_NAME)).getFile();
-        System.setProperty(LOGGING_PROPERTIES_KEY, loggingProperties);
+        URL loggingPropertiesResource = requireNonNull(getClass().getClassLoader().getResource(LOGGING_PROPERTIES_FILE_NAME));
+        try {
+            System.setProperty(LOGGING_PROPERTIES_KEY, Path.of(loggingPropertiesResource.toURI()).toString());
+        } catch (URISyntaxException ex) {
+            throw new IllegalStateException("Can not access logging properties resource.", ex);
+        }
 
         this.logger = isNull(logger) ? Logger.getLogger("ConsoleLogger") : logger;
         this.isLoggingEnabled = false;
@@ -109,10 +113,10 @@ public class DefaultOutputProvider implements OutputProvider {
     private void initLogFile(String fileName) {
         // Add .log if necessary
         if (!fileName.endsWith(".log")) {
-            fileName = fileName.concat(".log");
+            fileName = fileName + ".log";
         }
 
-        logFilePath = Paths.get(fileName);
+        logFilePath = Path.of(fileName);
     }
 
     private void writeString(String pattern, Object... arguments) {

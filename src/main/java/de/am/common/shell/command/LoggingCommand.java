@@ -23,7 +23,7 @@ import de.am.common.shell.util.Preconditions;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static java.io.File.separator;
+import java.nio.file.Path;
 
 /**
  * {@code EnableLoggingCommand} enables the logging of the shell.
@@ -44,12 +44,13 @@ public class LoggingCommand implements ShellInject {
     public void enableLogging(@CommandParameter(name = "file-name", description = "The name of the log file.") String fileName) {
         Preconditions.checkNotNull(fileName, "fileName");
 
-        fileName = System.getProperty("user.dir").concat(separator).concat(fileName);
-        if (!fileName.endsWith(".log")) {
-            fileName = fileName.concat(".log");
+        Path logFile = Path.of(System.getProperty("user.dir"), fileName);
+        String normalizedFileName = logFile.toString();
+        if (!normalizedFileName.endsWith(".log")) {
+            normalizedFileName = normalizedFileName + ".log";
         }
 
-        shell.enableLogging(fileName);
+        shell.enableLogging(normalizedFileName);
     }
 
     /**
