@@ -8,13 +8,13 @@
 Java library that makes it easier to create and run your own shell commands.
 
 ## Advantages
-* Zero dependencies only JRE is required.
+* Zero runtime dependencies, only the JRE is required at runtime.
 * Provides annotations to create a interactive command-line user interfaces.
 * Create commands and call a specific method for execution
 * No need to parse arguments
 
 ## Dependencies
-The *shell* library has zero dependencies.
+The *shell* library has zero runtime dependencies.
 
 ## Getting Started
 ### Requirements
