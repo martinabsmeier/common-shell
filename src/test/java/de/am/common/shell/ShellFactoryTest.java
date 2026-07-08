@@ -29,6 +29,7 @@ import static de.am.common.shell.ShellConstants.DEFAULT_PROMPT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * JUnit test cases of {@link ShellFactory} class.
@@ -96,6 +97,20 @@ class ShellFactoryTest {
         assertEquals("A file passed from the shell.", parameter.getDescription(), "Annotated parameter description should be used.");
     }
 
+    @Test
+    void createShellRejectsDuplicateCommandAcrossHandlers() {
+        ShellConfig config = ShellConfig.builder().build();
+
+        assertThrows(IllegalArgumentException.class, () -> ShellFactory.createShell(config, new DuplicateCommandsOne(), new DuplicateCommandsTwo()));
+    }
+
+    @Test
+    void createShellRejectsDuplicateIdentifierAgainstStandardCommands() {
+        ShellConfig config = ShellConfig.builder().build();
+
+        assertThrows(IllegalArgumentException.class, () -> ShellFactory.createShell(config, new DuplicateExitCommand()));
+    }
+
     // #################################################################################################################
 
     private static class TestCommands implements ShellInject {
@@ -112,13 +127,13 @@ class ShellFactoryTest {
             out.println("{}", "Annotated with @Command");
         }
 
-        @Command
+        @Command(shortcut = "cem")
         public void commandEm() {
             OutputProvider out = shell.getOutputProvider();
             out.println("{}", "Annotated with @Command");
         }
 
-        @Command
+        @Command(shortcut = "cemp")
         public void commandEmp() {
             OutputProvider out = shell.getOutputProvider();
             out.println("{}", "Annotated with @Command");
@@ -129,6 +144,30 @@ class ShellFactoryTest {
 
         @Command(name = "annotated")
         public void annotated(@CommandParameter(name = "file-name", description = "A file passed from the shell.") String fileName) {
+            // nothing to do
+        }
+    }
+
+    private static class DuplicateCommandsOne {
+
+        @Command(name = "duplicate-command")
+        public void first() {
+            // nothing to do
+        }
+    }
+
+    private static class DuplicateCommandsTwo {
+
+        @Command(name = "duplicate-command")
+        public void second() {
+            // nothing to do
+        }
+    }
+
+    private static class DuplicateExitCommand {
+
+        @Command(name = "custom-exit", shortcut = "exit")
+        public void exitLike() {
             // nothing to do
         }
     }

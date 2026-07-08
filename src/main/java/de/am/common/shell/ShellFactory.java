@@ -31,7 +31,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static de.am.common.shell.ShellConstants.SPLIT_REGEX;
@@ -73,6 +75,7 @@ public final class ShellFactory {
             .map(ShellFactory::createCommands)
             .flatMap(List::stream)
             .collect(Collectors.toList());
+        validateUniqueCommands(commands);
         ShellCommandDictionary dictionary = ShellCommandDictionary.builder().commands(commands).build();
         Shell shell = Shell.builder().config(config).dictionary(dictionary).build();
         injectShell(shell, commandList);
@@ -88,27 +91,17 @@ public final class ShellFactory {
             if (nonNull(cmdAnnotation)) {
                 String name = cmdAnnotation.name().isEmpty() ? method.getName() : cmdAnnotation.name();
                 String shortCut = cmdAnnotation.shortcut().isEmpty() ? createShortCut(method.getName()) : cmdAnnotation.shortcut();
-
-                if (!containsCommand(name, shortCut, commands)) {
-                    String description = cmdAnnotation.description();
-                    commands.add(
-                        ShellCommand.builder()
-                            .method(method).commandHandler(commandHandler).name(name).shortcut(shortCut).description(description)
-                            .parameters(createParameters(method))
-                            .build()
-                    );
-                }
+                String description = cmdAnnotation.description();
+                commands.add(
+                    ShellCommand.builder()
+                        .method(method).commandHandler(commandHandler).name(name).shortcut(shortCut).description(description)
+                        .parameters(createParameters(method))
+                        .build()
+                );
             }
         }
 
         return commands;
-    }
-
-    private static boolean containsCommand(String name, String shortCut, List<ShellCommand> commands) {
-        ShellCommand command = commands.stream()
-            .filter(cmd -> cmd.getName().equals(name) || cmd.getShortcut().equals(shortCut))
-            .findFirst().orElse(null);
-        return command != null;
     }
 
     private static ShellCommandParameter[] createParameters(Method method) {
@@ -160,6 +153,26 @@ public final class ShellFactory {
             .filter(ShellInject.class::isInstance)
             .map(ShellInject.class::cast)
             .forEach(handler -> handler.setShell(shell));
+    }
+
+    private static void validateUniqueCommands(List<ShellCommand> commands) {
+        Map<String, ShellCommand> identifiers = new HashMap<>();
+
+        for (ShellCommand command : commands) {
+            registerIdentifier(identifiers, command.getName(), "name", command);
+            registerIdentifier(identifiers, command.getShortcut(), "shortcut", command);
+        }
+    }
+
+    private static void registerIdentifier(Map<String, ShellCommand> identifiers, String identifier, String identifierType, ShellCommand command) {
+        ShellCommand existingCommand = identifiers.get(identifier);
+        if (nonNull(existingCommand) && existingCommand != command) {
+            String message = "Duplicate command " + identifierType + " [" + identifier + "] for commands ["
+                + existingCommand.getName() + "] and [" + command.getName() + "].";
+            throw new IllegalArgumentException(message);
+        }
+
+        identifiers.put(identifier, command);
     }
 
     private static String createShortCut(String methodName) {

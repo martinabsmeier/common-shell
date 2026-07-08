@@ -55,10 +55,11 @@ class ShellCommandParameterTest {
     }
 
     @Test
-    void setValue() {
+    void withValue() {
         commandParam = ShellCommandParameter.builder().build();
-        commandParam.setValue("foo");
+        ShellCommandParameter updatedCommandParam = commandParam.withValue("foo");
 
-        assertEquals("foo", commandParam.getValue(), "Value 'foo' is expected!");
+        assertEquals("", commandParam.getValue(), "Original value should stay unchanged.");
+        assertEquals("foo", updatedCommandParam.getValue(), "Value 'foo' is expected!");
     }
 }

@@ -86,6 +86,23 @@ public class ShellCommand {
         return typedParameters;
     }
 
+    /**
+     * Creates a copy of this command with the specified parameters.
+     *
+     * @param commandParameters parameter instances including parsed values
+     * @return a copied command instance
+     */
+    public ShellCommand withParameters(ShellCommandParameter[] commandParameters) {
+        return ShellCommand.builder()
+            .name(name)
+            .description(description)
+            .shortcut(shortcut)
+            .method(method)
+            .commandHandler(commandHandler)
+            .parameters(commandParameters)
+            .build();
+    }
+
     // #################################################################################################################
     private Object convertValueToType(String value, Class<?> clazz) {
         if (Preconditions.isNullOrEmpty(value)) {

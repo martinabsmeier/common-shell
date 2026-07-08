@@ -100,12 +100,61 @@ class ShellCommandDictionaryTest {
             ShellCommandParameter.builder().name("param-2").build()
         };
         List<ShellCommand> commands = new ArrayList<>();
-        commands.add(ShellCommand.builder().name("cmd").shortcut("cmd").parameters(parameters).build());
+        ShellCommand registeredCommand = ShellCommand.builder().name("cmd").shortcut("cmd").parameters(parameters).build();
+        commands.add(registeredCommand);
         dictionary = ShellCommandDictionary.builder().commands(commands).build();
 
         ShellCommand command = dictionary.getCommand("cmd value-1 value-2");
         assertNotNull(command, "We expect a command.");
         assertEquals(2, command.getParameters().length, "We expect two parameters.");
+        assertEquals("value-1", command.getParameters()[0].getValue(), "Parsed value expected.");
+        assertEquals("value-2", command.getParameters()[1].getValue(), "Parsed value expected.");
+        assertEquals("", registeredCommand.getParameters()[0].getValue(), "Registered command metadata must stay unchanged.");
+        assertEquals("", registeredCommand.getParameters()[1].getValue(), "Registered command metadata must stay unchanged.");
+    }
+
+    @Test
+    void getCommandWithQuotedAndSpacedParameters() {
+        ShellCommandParameter[] parameters = new ShellCommandParameter[]{
+            ShellCommandParameter.builder().name("param-1").build(),
+            ShellCommandParameter.builder().name("param-2").build()
+        };
+        List<ShellCommand> commands = new ArrayList<>();
+        commands.add(ShellCommand.builder().name("cmd").shortcut("cmd").parameters(parameters).build());
+        dictionary = ShellCommandDictionary.builder().commands(commands).build();
+
+        ShellCommand command = dictionary.getCommand("  cmd   \"value 1\"   'value 2'  ");
+        assertNotNull(command, "We expect a command.");
+        assertEquals("value 1", command.getParameters()[0].getValue(), "Double-quoted value expected.");
+        assertEquals("value 2", command.getParameters()[1].getValue(), "Single-quoted value expected.");
+    }
+
+    @Test
+    void getCommandUnterminatedQuotedParameter() {
+        ShellCommandParameter[] parameters = new ShellCommandParameter[]{
+            ShellCommandParameter.builder().name("param-1").build()
+        };
+        List<ShellCommand> commands = new ArrayList<>();
+        commands.add(ShellCommand.builder().name("cmd").shortcut("cmd").parameters(parameters).build());
+        dictionary = ShellCommandDictionary.builder().commands(commands).build();
+
+        assertThrows(IllegalArgumentException.class, () -> dictionary.getCommand("cmd \"value-1"));
+    }
+
+    @Test
+    void getCommandKeepsParsedValuesIsolated() {
+        ShellCommandParameter[] parameters = new ShellCommandParameter[]{
+            ShellCommandParameter.builder().name("param-1").build()
+        };
+        List<ShellCommand> commands = new ArrayList<>();
+        commands.add(ShellCommand.builder().name("cmd").shortcut("cmd").parameters(parameters).build());
+        dictionary = ShellCommandDictionary.builder().commands(commands).build();
+
+        ShellCommand firstCommand = dictionary.getCommand("cmd first");
+        ShellCommand secondCommand = dictionary.getCommand("cmd second");
+
+        assertEquals("first", firstCommand.getParameters()[0].getValue(), "First parsed command should keep its own value.");
+        assertEquals("second", secondCommand.getParameters()[0].getValue(), "Second parsed command should keep its own value.");
     }
 
     // #################################################################################################################

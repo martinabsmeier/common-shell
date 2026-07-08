@@ -19,7 +19,6 @@ import de.am.common.shell.command.annotation.Command;
 import de.am.common.shell.command.annotation.CommandParameter;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import static java.util.Objects.isNull;
 
@@ -37,7 +36,6 @@ public class ShellCommandParameter {
     @Getter
     private final String description;
     @Getter
-    @Setter
     private String value;
     @Getter
     private final Class<?> type;
@@ -58,5 +56,21 @@ public class ShellCommandParameter {
         this.description = isNull(description) ? "" : description;
         this.value = isNull(value) ? "" : value;
         this.type = type;
+    }
+
+    /**
+     * Creates a copy of this parameter with the specified value.
+     *
+     * @param value the value to assign
+     * @return a copied parameter instance including the provided value
+     */
+    public ShellCommandParameter withValue(String value) {
+        return ShellCommandParameter.builder()
+            .index(index)
+            .name(name)
+            .description(description)
+            .value(value)
+            .type(type)
+            .build();
     }
 }

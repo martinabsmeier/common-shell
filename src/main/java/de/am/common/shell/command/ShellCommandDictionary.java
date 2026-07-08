@@ -52,18 +52,22 @@ public class ShellCommandDictionary {
      * @return the found {@code ShellCommand} or null if no one is found
      */
     public ShellCommand getCommand(String command) {
-        String[] commandAndParamValues = command.split(" ");
+        String[] commandAndParamValues = tokenize(command);
+        if (commandAndParamValues.length == 0) {
+            return null;
+        }
 
         ShellCommand cmd = findCommand(commandAndParamValues[0]);
         if (nonNull(cmd) && nonNull(cmd.getParameters())) {
-            setParameterValues(commandAndParamValues, cmd.getParameters());
+            return createCommandWithParameterValues(commandAndParamValues, cmd);
         }
 
         return cmd;
     }
 
     // #################################################################################################################
-    private void setParameterValues(String[] paramValues, ShellCommandParameter[] parameters) {
+    private ShellCommand createCommandWithParameterValues(String[] paramValues, ShellCommand command) {
+        ShellCommandParameter[] parameters = command.getParameters();
         // the first value in paramValues is the command
         int valueLength = paramValues.length - 1;
         if (valueLength != parameters.length) {
@@ -72,11 +76,15 @@ public class ShellCommandDictionary {
             throw new IllegalArgumentException(message);
         }
 
+        ShellCommandParameter[] parsedParameters = new ShellCommandParameter[parameters.length];
         int index = 1; // The parameters start at index 1 the command is at index 0
-        for (ShellCommandParameter param : parameters) {
-            param.setValue(paramValues[index]);
+        for (int paramIndex = 0; paramIndex < parameters.length; paramIndex++) {
+            ShellCommandParameter param = parameters[paramIndex];
+            parsedParameters[paramIndex] = param.withValue(paramValues[index]);
             index++;
         }
+
+        return command.withParameters(parsedParameters);
     }
 
     private ShellCommand findCommand(String command) {
@@ -87,5 +95,42 @@ public class ShellCommandDictionary {
 
     private boolean isNameOrShortCutEqual(ShellCommand cmd, String command) {
         return command.equals(cmd.getName()) || command.equals(cmd.getShortcut());
+    }
+
+    private String[] tokenize(String command) {
+        List<String> tokens = new ArrayList<>();
+        StringBuilder currentToken = new StringBuilder();
+        boolean tokenStarted = false;
+        char activeQuote = 0;
+
+        for (int index = 0; index < command.length(); index++) {
+            char currentChar = command.charAt(index);
+
+            if (activeQuote == 0 && (currentChar == '"' || currentChar == '\'')) {
+                activeQuote = currentChar;
+                tokenStarted = true;
+            } else if (activeQuote != 0 && currentChar == activeQuote) {
+                activeQuote = 0;
+            } else if (activeQuote == 0 && Character.isWhitespace(currentChar)) {
+                if (tokenStarted) {
+                    tokens.add(currentToken.toString());
+                    currentToken.setLength(0);
+                    tokenStarted = false;
+                }
+            } else {
+                currentToken.append(currentChar);
+                tokenStarted = true;
+            }
+        }
+
+        if (activeQuote != 0) {
+            throw new IllegalArgumentException("Command contains an unterminated quoted parameter.");
+        }
+
+        if (tokenStarted) {
+            tokens.add(currentToken.toString());
+        }
+
+        return tokens.toArray(new String[0]);
     }
 }
