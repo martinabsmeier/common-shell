@@ -4,56 +4,207 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=martinabsmeier_common-shell&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=martinabsmeier_common-shell)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-# Shell library
-Java library that makes it easier to create and run your own shell commands.
+# common-shell
 
-## Advantages
-* Zero runtime dependencies, only the JRE is required at runtime.
-* Provides annotations to create a interactive command-line user interfaces.
-* Create commands and call a specific method for execution
-* No need to parse arguments
+`common-shell` is a small Java library for building interactive command-line shells with minimal boilerplate.
 
-## Dependencies
-The *shell* library has zero runtime dependencies.
+It discovers command methods via annotations, parses command arguments, provides built-in helper commands, and runs on plain Java without runtime dependencies.
 
-## Getting Started
-### Requirements
-- Installed java SDK minimum is version 11 see [Adoptium](https://adoptium.net/de/).
-- Installed maven build tool see [Maven](https://maven.apache.org)
-- Clone the repository from GitHub.
+## Features
 
-### Clone the common-shell repository
-```shell
-git clone git@github.com:martinabsmeier/common-shell.git
-```
+- Zero runtime dependencies
+- Annotation-based command registration
+- Auto-generated command shortcuts
+- Built-in commands for `help`, `exit`, `version`, exception display, logging, and execution time display
+- Typed parameter conversion for common Java types
+- Quoted argument parsing for commands such as `"hello world"`
+- Configurable limits for command length and log entry length
+- Safer defaults for exception display and log file handling
 
-### Build the common-shell library
+## Requirements
+
+- Java 21 for build and runtime
+- Maven 3.9+
+
+## Build and test
+
 ```shell
 mvn clean install
 ```
 
-### Run the common-shell JUnit Tests
 ```shell
 mvn test
 ```
 
-## User guide
-Add some examples
+## Quick start
 
-## Releases
-* For available releases, see the [repository release list](https://github.com/martinabsmeier/common-shell/releases).
-* For available tags, see the [repository tag list](https://github.com/martinabsmeier/common-shell/tags).
+```java
+import de.am.common.shell.Shell;
+import de.am.common.shell.ShellFactory;
+import de.am.common.shell.command.annotation.Command;
+import de.am.common.shell.command.annotation.CommandParameter;
 
-## Versioning
-This project uses [Semantic Versioning](http://semver.org/).
+public class DemoCommands {
+
+    @Command(name = "greet", description = "Print a greeting")
+    public String greet(@CommandParameter(name = "name") String name) {
+        return "Hello " + name + "!";
+    }
+
+    public static void main(String[] args) {
+        Shell shell = ShellFactory.createShell("> ", "Demo", new DemoCommands());
+        shell.execute();
+    }
+}
+```
+
+Example session:
+
+```text
+Demo> greet Martin
+Hello Martin!
+Demo> help
+Demo> exit
+Shutdown shell...
+```
+
+## Declaring commands
+
+Commands are public methods annotated with `@Command`.
+
+```java
+@Command(name = "add-user", shortcut = "au", description = "Create a user")
+public void addUser(
+    @CommandParameter(name = "user-name", description = "Display name of the user") String userName,
+    @CommandParameter(name = "active") boolean active
+) {
+    // ...
+}
+```
+
+### Naming rules
+
+- Prefer **kebab-case** command names such as `add-user`
+- Prefer **kebab-case** parameter names such as `user-name`
+- If `shortcut` is omitted, a shortcut is generated from the method name
+- Command names and shortcuts must be globally unique, including built-in commands
+
+## Built-in commands
+
+The shell automatically registers these commands:
+
+| Command | Purpose |
+|---|---|
+| `help` | Show all registered commands |
+| `exit` | Stop the shell |
+| `version` | Show library/runtime version information |
+| `showException` / `sE` | Show the last exception |
+| `enableLogging` / `eL` | Write shell output to a log file |
+| `disableLogging` / `dL` | Stop writing shell output to a log file |
+| `enableTimeDisplay` | Show command runtime |
+| `disableTimeDisplay` | Hide command runtime |
+
+## Configuration
+
+Use `ShellConfig` to customize shell behavior.
+
+```java
+import de.am.common.shell.Shell;
+import de.am.common.shell.ShellConfig;
+import de.am.common.shell.ShellFactory;
+
+ShellConfig config = ShellConfig.builder()
+    .appName("Demo")
+    .prompt("> ")
+    .isTimeDisplayed(false)
+    .isExceptionDetailsDisplayed(false)
+    .maxCommandLength(4096)
+    .maxLogEntryLength(16384)
+    .build();
+
+Shell shell = ShellFactory.createShell(config, new DemoCommands());
+```
+
+### Important defaults
+
+- Exception details are hidden by default; `showException` only exposes the exception type unless detailed output is explicitly enabled
+- Log files must be simple file names in the current working directory
+- Log file targets that are symbolic links or non-regular files are rejected
+- Excessively long commands are rejected
+
+## Accessing the running shell
+
+If a command handler needs direct access to the shell, implement `ShellInject`.
+
+```java
+import de.am.common.shell.Shell;
+import de.am.common.shell.ShellInject;
+import de.am.common.shell.command.annotation.Command;
+
+public class AdminCommands implements ShellInject {
+
+    private Shell shell;
+
+    @Override
+    public void setShell(Shell shell) {
+        this.shell = shell;
+    }
+
+    @Command(name = "stop")
+    public void stop() {
+        shell.shutdown();
+    }
+}
+```
+
+## Parameter handling
+
+The shell converts string arguments to the method parameter types it supports, including:
+
+- `String`
+- `int` / `Integer`
+- `long` / `Long`
+- `double` / `Double`
+- `float` / `Float`
+- `boolean` / `Boolean`
+
+Boolean values are parsed strictly: only `true` and `false` are accepted.
+
+Arguments support repeated whitespace and quoted values:
+
+```text
+say "hello world"
+move 'my file.txt' target
+```
+
+## Logging
+
+`enableLogging` writes shell output to a local `.log` file in the current working directory.
+
+Examples:
+
+```text
+enableLogging shell.log
+enableLogging session
+disableLogging
+```
+
+When no `.log` suffix is provided, it is appended automatically.
+
+## Project status
+
+- Releases: [GitHub Releases](https://github.com/martinabsmeier/common-shell/releases)
+- Tags: [GitHub Tags](https://github.com/martinabsmeier/common-shell/tags)
+- Versioning: [Semantic Versioning](https://semver.org/)
 
 ## Contributing
-Everyone is invited to further develop the project, be it with ideas for new use cases or with source code.
-Please review [CONTRIBUTING](CONTRIBUTING.md) for details on our code of conduct and development process.
+
+Contributions are welcome. Please review:
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
 
 ## License
-This project is licensed under the Apache License - see [LICENSE](LICENSE) file for details.
 
-## Authors
-* **[Martin Absmeier](https://github.com/martinabsmeier)** - *Initial work*
-* Also see the list of [contributors](https://github.com/martinabsmeier/common-shell/contributors) who participated in this project.
+This project is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
