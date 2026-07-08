@@ -121,7 +121,10 @@ public class ShellCommand {
         } else if (clazz.equals(Float.class) || clazz.equals(Float.TYPE)) {
             return Float.parseFloat(value);
         } else if (clazz.equals(Boolean.class) || clazz.equals(Boolean.TYPE)) {
-            return Boolean.parseBoolean(value);
+            if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
+                return Boolean.parseBoolean(value);
+            }
+            throw new IllegalArgumentException("Can not convert value '" + value + "' to type '" + clazz + "'.");
         } else {
             throw new ShellException("Can not convert value '" + value + "' to type '" + clazz + "'.");
         }

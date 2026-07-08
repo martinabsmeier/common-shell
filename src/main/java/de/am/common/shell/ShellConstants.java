@@ -40,6 +40,14 @@ public final class ShellConstants {
      * Exception details are hidden by default
      */
     public static final boolean DEFAULT_DISPLAY_EXCEPTION_DETAILS = false;
+    /**
+     * Maximum length of a command input accepted by the shell
+     */
+    public static final int DEFAULT_MAX_COMMAND_LENGTH = 4096;
+    /**
+     * Maximum length of a single log entry written by the default output provider
+     */
+    public static final int DEFAULT_MAX_LOG_ENTRY_LENGTH = 16384;
 
     // #################################################################################################################
     // Common constants

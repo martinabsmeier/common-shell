@@ -106,6 +106,19 @@ class ShellCommandTest {
         assertNotNull(typedParams, "We expect typed parameter.");
     }
 
+    @Test
+    void convertInvalidBooleanValue() throws NoSuchMethodException {
+        ShellCommandParameter[] parameters= new ShellCommandParameter[]{
+            ShellCommandParameter.builder().index(1).name("param-1").value("not-boolean").build()
+        };
+
+        Method booleanMethod = getClass().getMethod("booleanValue", Boolean.class);
+        command = ShellCommand.builder().name("booleanCommand").description("Boolean command description")
+            .shortcut("bC").method(booleanMethod).parameters(parameters).build();
+
+        assertThrows(IllegalArgumentException.class, () -> command.getTypedParameters());
+    }
+
     // #################################################################################################################
     private ShellCommandParameter[] createParameter(int count) {
         ShellCommandParameter[] parameter = new ShellCommandParameter[count];
@@ -121,5 +134,9 @@ class ShellCommandTest {
 
     public String foo(String s, Integer i, Long l, Double d, Float f, Boolean b) {
         return s + i + l + d + f + b;
+    }
+
+    public String booleanValue(Boolean value) {
+        return value.toString();
     }
 }

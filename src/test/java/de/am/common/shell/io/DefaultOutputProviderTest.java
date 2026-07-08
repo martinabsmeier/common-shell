@@ -19,6 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,6 +115,24 @@ class DefaultOutputProviderTest {
     }
 
     @Test
+    void enableLoggingRejectsSymbolicLink() throws IOException {
+        Path targetFile = Path.of("target-log-file.log");
+        Path symbolicLink = Path.of("symbolic-link.log");
+
+        try {
+            Files.deleteIfExists(symbolicLink);
+            Files.deleteIfExists(targetFile);
+            Files.createFile(targetFile);
+            Files.createSymbolicLink(symbolicLink, targetFile);
+
+            assertThrows(IllegalArgumentException.class, () -> outputProvider.enableLogging(symbolicLink.getFileName().toString()));
+        } finally {
+            Files.deleteIfExists(symbolicLink);
+            Files.deleteIfExists(targetFile);
+        }
+    }
+
+    @Test
     void enableLogging() {
         String fileName = "logWithExtension.log";
         outputProvider.enableLogging(fileName);
@@ -123,6 +143,23 @@ class DefaultOutputProviderTest {
         String pathAndFileName = System.getProperty("user.dir").concat(File.separator).concat(fileName);
         File logFile = new File(pathAndFileName);
         assertTrue(logFile.delete(), "Can not delete log file.");
+    }
+
+    @Test
+    void enableLoggingTruncatesLongLogEntry() throws IOException {
+        outputProvider = DefaultOutputProvider.builder().logger(logger).maxLogEntryLength(5).build();
+        String fileName = "truncated.log";
+        outputProvider.enableLogging(fileName);
+        outputProvider.print("{0}", null, "123456789");
+
+        String pathAndFileName = System.getProperty("user.dir") + File.separator + fileName;
+        File logFile = new File(pathAndFileName);
+        try {
+            String content = Files.readString(logFile.toPath());
+            assertTrue("12345".equals(content), "The log entry should be truncated to the configured maximum length.");
+        } finally {
+            assertTrue(logFile.delete(), "Can not delete log file.");
+        }
     }
 
     @Test

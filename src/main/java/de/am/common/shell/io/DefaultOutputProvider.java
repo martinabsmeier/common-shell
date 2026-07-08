@@ -20,14 +20,18 @@ import de.am.common.shell.util.Preconditions;
 import lombok.Builder;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.logging.Logger;
 
 import static de.am.common.shell.ShellConstants.ANSI_RESET;
+import static de.am.common.shell.ShellConstants.DEFAULT_MAX_LOG_ENTRY_LENGTH;
 import static de.am.common.shell.ShellConstants.NEW_LINE;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
 import static java.text.MessageFormat.format;
 import static java.util.Objects.isNull;
 import static java.util.logging.Level.INFO;
@@ -40,6 +44,7 @@ import static java.util.logging.Level.INFO;
 public class DefaultOutputProvider implements OutputProvider {
 
     private final Logger logger;
+    private final int maxLogEntryLength;
     private boolean isLoggingEnabled;
     private Path logFilePath;
 
@@ -48,10 +53,12 @@ public class DefaultOutputProvider implements OutputProvider {
      * <b>Note:</b> The builder is only given a logger during a JUnit test
      *
      * @param logger a logger should only be passed for a JUnit test
+     * @param maxLogEntryLength maximum allowed length of a single log entry
      */
     @Builder
-    public DefaultOutputProvider(Logger logger) {
+    public DefaultOutputProvider(Logger logger, Integer maxLogEntryLength) {
         this.logger = isNull(logger) ? Logger.getLogger("ConsoleLogger") : logger;
+        this.maxLogEntryLength = isNull(maxLogEntryLength) ? DEFAULT_MAX_LOG_ENTRY_LENGTH : maxLogEntryLength;
         this.isLoggingEnabled = false;
         this.logFilePath = null;
     }
@@ -116,11 +123,30 @@ public class DefaultOutputProvider implements OutputProvider {
         }
 
         logFilePath = Path.of(System.getProperty("user.dir"), normalizedFileName).normalize();
+        if (Files.isSymbolicLink(logFilePath)) {
+            throw new IllegalArgumentException("The log file must not be a symbolic link.");
+        }
+        if (Files.exists(logFilePath, LinkOption.NOFOLLOW_LINKS) && !Files.isRegularFile(logFilePath, LinkOption.NOFOLLOW_LINKS)) {
+            throw new IllegalArgumentException("The log target must be a regular file.");
+        }
     }
 
     private void writeString(String pattern, Object... arguments) {
         try {
-            Files.writeString(logFilePath, format(pattern, arguments), CREATE, APPEND);
+            String content = format(pattern, arguments);
+            if (content.length() > maxLogEntryLength) {
+                content = content.substring(0, maxLogEntryLength);
+            }
+
+            try (SeekableByteChannel channel = Files.newByteChannel(
+                logFilePath,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.APPEND,
+                LinkOption.NOFOLLOW_LINKS
+            )) {
+                channel.write(ByteBuffer.wrap(content.getBytes(StandardCharsets.UTF_8)));
+            }
         } catch (IOException ex) {
             ShellException shellException = new ShellException("Can not write to log file.");
             shellException.initCause(ex);

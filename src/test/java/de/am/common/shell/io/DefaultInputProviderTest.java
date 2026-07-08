@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Scanner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -49,6 +50,15 @@ class DefaultInputProviderTest {
 
         String actual = provider.readCommand();
         assertEquals(expected, actual, "Commands not equal.");
+    }
+
+    @Test
+    void readCommandLongValue() {
+        String expected = "very-long-command";
+        when(scanner.nextLine()).thenReturn(expected);
+
+        String actual = provider.readCommand();
+        assertEquals(expected, actual, "The input provider should return the raw command.");
     }
 
     @Test

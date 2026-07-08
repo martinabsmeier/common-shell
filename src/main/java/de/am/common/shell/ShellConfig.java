@@ -25,6 +25,8 @@ import lombok.Getter;
 import static de.am.common.shell.ShellConstants.DEFAULT_APP_NAME;
 import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_EXCEPTION_DETAILS;
 import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_TIME;
+import static de.am.common.shell.ShellConstants.DEFAULT_MAX_COMMAND_LENGTH;
+import static de.am.common.shell.ShellConstants.DEFAULT_MAX_LOG_ENTRY_LENGTH;
 import static de.am.common.shell.ShellConstants.DEFAULT_PROMPT;
 import static de.am.common.shell.util.Preconditions.isNullOrEmpty;
 import static java.util.Objects.isNull;
@@ -47,6 +49,10 @@ public class ShellConfig {
     private final boolean isTimeDisplayed;
     @Getter
     private final boolean isExceptionDetailsDisplayed;
+    @Getter
+    private final int maxCommandLength;
+    @Getter
+    private final int maxLogEntryLength;
 
     /**
      * Create a new instance of {@code ShellConfig}.
@@ -57,6 +63,8 @@ public class ShellConfig {
      * @param outputProvider  the output provider of shell
      * @param isTimeDisplayed true if the runtime of commands should be measured, false otherwise
      * @param isExceptionDetailsDisplayed true if exception details should be exposed, false otherwise
+     * @param maxCommandLength maximum allowed command length
+     * @param maxLogEntryLength maximum allowed log entry length for the default output provider
      */
     @Builder
     public ShellConfig(String prompt,
@@ -64,13 +72,19 @@ public class ShellConfig {
                        InputProvider inputProvider,
                        OutputProvider outputProvider,
                        Boolean isTimeDisplayed,
-                       Boolean isExceptionDetailsDisplayed)
+                       Boolean isExceptionDetailsDisplayed,
+                       Integer maxCommandLength,
+                       Integer maxLogEntryLength)
     {
         this.prompt = isNullOrEmpty(prompt) ? DEFAULT_PROMPT : prompt;
         this.appName = isNullOrEmpty(appName) ? DEFAULT_APP_NAME : appName;
-        this.inputProvider = isNull(inputProvider) ? DefaultInputProvider.builder().build() : inputProvider;
-        this.outputProvider = isNull(outputProvider) ? DefaultOutputProvider.builder().build() : outputProvider;
         this.isTimeDisplayed = isNull(isTimeDisplayed) ? DEFAULT_DISPLAY_TIME : isTimeDisplayed;
         this.isExceptionDetailsDisplayed = isNull(isExceptionDetailsDisplayed) ? DEFAULT_DISPLAY_EXCEPTION_DETAILS : isExceptionDetailsDisplayed;
+        this.maxCommandLength = isNull(maxCommandLength) ? DEFAULT_MAX_COMMAND_LENGTH : maxCommandLength;
+        this.maxLogEntryLength = isNull(maxLogEntryLength) ? DEFAULT_MAX_LOG_ENTRY_LENGTH : maxLogEntryLength;
+        this.inputProvider = isNull(inputProvider) ? DefaultInputProvider.builder().build() : inputProvider;
+        this.outputProvider = isNull(outputProvider)
+            ? DefaultOutputProvider.builder().maxLogEntryLength(this.maxLogEntryLength).build()
+            : outputProvider;
     }
 }

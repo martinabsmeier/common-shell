@@ -99,6 +99,25 @@ class ShellTest {
         assertEquals(2, commandHandler.counter, "The registered command handler should be reused.");
     }
 
+    @Test
+    void executeRejectsTooLongCommand() {
+        ShellConfig config = ShellConfig.builder().inputProvider(inputProvider).maxCommandLength(3).build();
+        shell = ShellFactory.createShell(config);
+
+        when(inputProvider.readCommand()).thenReturn("version").thenReturn("exit");
+
+        shell.execute();
+        assertNotNull(shell.getException());
+        assertTrue(shell.getException() instanceof IllegalArgumentException);
+    }
+
+    @Test
+    void shutdownSetsShutdownFlag() {
+        shell.shutdown();
+
+        assertTrue(shell.isShutdown());
+    }
+
     public static class ExceptionCommand implements ShellInject {
         @Setter
         private Shell shell;

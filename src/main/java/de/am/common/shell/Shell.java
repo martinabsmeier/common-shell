@@ -27,7 +27,6 @@ import lombok.Setter;
 
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
 import static de.am.common.shell.ShellConstants.ANSI_YELLOW_BRIGHT;
-import static de.am.common.shell.ShellConstants.SUCCESSFUL;
 import static java.util.Objects.nonNull;
 
 /**
@@ -57,6 +56,7 @@ public class Shell {
     @Getter
     @Setter
     private boolean isExceptionDetailsDisplayed;
+    private final int maxCommandLength;
     private final StopWatch sw;
 
     private static final String EX_MESSAGE = "Exception occurred, run 'showException' or 'sE' to see the details.";
@@ -75,6 +75,7 @@ public class Shell {
         this.prompt = config.getAppName() + config.getPrompt();
         this.isTimeDisplayed = config.isTimeDisplayed();
         this.isExceptionDetailsDisplayed = config.isExceptionDetailsDisplayed();
+        this.maxCommandLength = config.getMaxCommandLength();
         this.sw = StopWatch.builder().build();
     }
 
@@ -92,7 +93,12 @@ public class Shell {
             sw.start();
 
             if (!command.isEmpty()) {
-                executeCommand(command);
+                if (command.length() > maxCommandLength) {
+                    exception = new IllegalArgumentException("Command length exceeds the configured limit of " + maxCommandLength + " characters.");
+                    outputProvider.println("{0}", ANSI_WHITE_BRIGHT, EX_MESSAGE);
+                } else {
+                    executeCommand(command);
+                }
             }
 
             sw.stop();
@@ -121,12 +127,10 @@ public class Shell {
     }
 
     /**
-     * Shutdown the shell. Execute {@code System.exit}
+     * Shutdown the shell.
      */
     public void shutdown() {
-        if (isShutdown) {
-            System.exit(SUCCESSFUL);
-        }
+        isShutdown = true;
     }
 
     // #################################################################################################################

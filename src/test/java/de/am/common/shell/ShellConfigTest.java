@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Test;
 import static de.am.common.shell.ShellConstants.DEFAULT_APP_NAME;
 import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_EXCEPTION_DETAILS;
 import static de.am.common.shell.ShellConstants.DEFAULT_DISPLAY_TIME;
+import static de.am.common.shell.ShellConstants.DEFAULT_MAX_COMMAND_LENGTH;
+import static de.am.common.shell.ShellConstants.DEFAULT_MAX_LOG_ENTRY_LENGTH;
 import static de.am.common.shell.ShellConstants.DEFAULT_PROMPT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,6 +40,8 @@ class ShellConfigTest {
         assertEquals(DEFAULT_APP_NAME, config.getAppName());
         assertEquals(DEFAULT_DISPLAY_TIME, config.isTimeDisplayed());
         assertEquals(DEFAULT_DISPLAY_EXCEPTION_DETAILS, config.isExceptionDetailsDisplayed());
+        assertEquals(DEFAULT_MAX_COMMAND_LENGTH, config.getMaxCommandLength());
+        assertEquals(DEFAULT_MAX_LOG_ENTRY_LENGTH, config.getMaxLogEntryLength());
     }
 
     @Test
@@ -46,17 +50,23 @@ class ShellConfigTest {
         String appName = "TestApp";
         boolean isEnabled = true;
         boolean showExceptionDetails = true;
+        int maxCommandLength = 100;
+        int maxLogEntryLength = 200;
 
         ShellConfig config = ShellConfig.builder()
             .prompt(prompt)
             .appName(appName)
             .isTimeDisplayed(isEnabled)
             .isExceptionDetailsDisplayed(showExceptionDetails)
+            .maxCommandLength(maxCommandLength)
+            .maxLogEntryLength(maxLogEntryLength)
             .build();
 
         assertEquals(prompt, config.getPrompt());
         assertEquals(appName, config.getAppName());
         assertEquals(isEnabled, config.isTimeDisplayed());
         assertEquals(showExceptionDetails, config.isExceptionDetailsDisplayed());
+        assertEquals(maxCommandLength, config.getMaxCommandLength());
+        assertEquals(maxLogEntryLength, config.getMaxLogEntryLength());
     }
 }
