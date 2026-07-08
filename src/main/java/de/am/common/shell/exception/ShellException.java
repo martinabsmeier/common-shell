@@ -17,12 +17,15 @@ package de.am.common.shell.exception;
 
 import de.am.common.shell.Shell;
 
+import java.io.Serial;
+
 /**
  * {@code ShellException} is the general exception class of the {@link Shell} application.
  *
  * @author Martin Absmeier
  */
 public class ShellException extends RuntimeException {
+    @Serial
     private static final long serialVersionUID = -1504917137622657688L;
 
     /**

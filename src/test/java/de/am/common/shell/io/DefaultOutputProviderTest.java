@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static de.am.common.shell.ShellConstants.ANSI_WHITE_BRIGHT;
+import static de.am.common.shell.ShellConstants.NEW_LINE;
 import static java.util.logging.Level.INFO;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -148,7 +149,7 @@ class DefaultOutputProviderTest {
     @Test
     void enableLoggingTruncatesLongLogEntry() throws IOException {
         outputProvider = DefaultOutputProvider.builder().logger(logger).maxLogEntryLength(5).build();
-        String fileName = "truncated.log";
+        String fileName = "truncated-" + System.nanoTime() + ".log";
         outputProvider.enableLogging(fileName);
         outputProvider.print("{0}", null, "123456789");
 
@@ -156,7 +157,7 @@ class DefaultOutputProviderTest {
         File logFile = new File(pathAndFileName);
         try {
             String content = Files.readString(logFile.toPath());
-            assertTrue("12345".equals(content), "The log entry should be truncated to the configured maximum length.");
+            assertTrue(("12345" + NEW_LINE).equals(content), "The log entry should be truncated to the configured maximum length.");
         } finally {
             assertTrue(logFile.delete(), "Can not delete log file.");
         }

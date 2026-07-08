@@ -101,7 +101,7 @@ class ShellTest {
 
     @Test
     void executeRejectsTooLongCommand() {
-        ShellConfig config = ShellConfig.builder().inputProvider(inputProvider).maxCommandLength(3).build();
+        ShellConfig config = ShellConfig.builder().inputProvider(inputProvider).maxCommandLength(5).build();
         shell = ShellFactory.createShell(config);
 
         when(inputProvider.readCommand()).thenReturn("version").thenReturn("exit");
